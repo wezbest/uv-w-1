@@ -9,7 +9,12 @@ NC='\e[0m'
 
 # Banner setup 
 
-banner1() {
+b1() {
+    curl https://snips.sh/f/7l7_Yp0Htz
+}
+
+
+b2() {
     echo -e "-----------------------------------------------"
     echo -e "  Shell script to setup the following "
     echo -e "${GREEN}  Tyer - uv add typer   ${NC}"
@@ -19,4 +24,5 @@ banner1() {
 
 
 # Execution Sequence 
-banner1
+b1 # Main Banner 
+b2 # Banner Text

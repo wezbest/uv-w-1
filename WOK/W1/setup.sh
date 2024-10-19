@@ -17,12 +17,22 @@ b1() {
 b2() {
     echo -e "-----------------------------------------------"
     echo -e "  Shell script to setup the following "
-    echo -e "${GREEN}  Tyer - uv add typer   ${NC}"
-    echo -e "${GREEN}     ${NC}"
+    echo -e "${GREEN}  uv add typer   ${NC}"
+    echo -e "${GREEN}  uv add pytest-playwright   ${NC}"
+    echo -e "${GREEN}  uvx playwright install --with-deps   ${NC}"
     echo -e "-----------------------------------------------"
+}
+
+s1() {
+    echo -e "${blue} Executing #{NC}"
+    uv add typer
+    uv add pytest-playwrigh
+    uvx playwright install --with-deps
+    uv tree
 }
 
 
 # Execution Sequence 
 b1 # Main Banner 
 b2 # Banner Text
+s1

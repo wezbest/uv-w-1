@@ -26,7 +26,7 @@ b2() {
 s1() {
     echo -e "${YELLOW} Executing ${NC}"
     uv add typer
-    uv add pytest-playwrigh
+    uv add pytest-playwright
     uvx playwright install --with-deps
     uv tree
 }

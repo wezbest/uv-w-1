@@ -7,6 +7,12 @@ from src.sc1.s1 import s1
 panty = typer.Typer(name="AssSniff")
 
 
+def custom_error_handler(ctx: typer.Context, error: Exception):
+    pussy()  # Display the banner
+    typer.echo(f"Error: {error}")
+    raise typer.Exit(code=1)
+
+
 @panty.callback()
 def main(ctx: typer.Context):
     print("[red]AssSniff[/red]")

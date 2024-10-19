@@ -24,7 +24,7 @@ b2() {
 }
 
 s1() {
-    echo -e "${blue} Executing #{NC}"
+    echo -e "${YELLOW} Executing ${NC}"
     uv add typer
     uv add pytest-playwrigh
     uvx playwright install --with-deps

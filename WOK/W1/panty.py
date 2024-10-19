@@ -4,20 +4,12 @@ from rich import print
 from src.banner.b2 import pussy
 from src.sc1.s1 import s1
 
-panty = typer.Typer(name="AssSniff")
+# panty = typer.Typer(name="AssSniff")
 
-
-def custom_error_handler(ctx: typer.Context, error: Exception):
-    pussy()  # Display the banner
-    typer.echo(f"Error: {error}")
-    raise typer.Exit(code=1)
-
-
-@panty.callback()
-def main(ctx: typer.Context):
-    print("[red]AssSniff[/red]")
-    if ctx.invoked_subcommand is None:
-        typer.echo("No subcommand specified. Use --help for more information.")
+###### Custom error handler
+panty = typer.Typer(
+    help="Panty - A lovely utility tool",
+)
 
 
 # Geenral Command Test 1

@@ -1,0 +1,37 @@
+{
+  // Prettier , Indent Rainbow , Error Lens, Color , Typescript , Icons , Obsidian Theme , Mayuki theme, Import Cost , ES7 React Snippets, Vuln Cost - Security Scanner
+  "workbench.list.smoothScrolling": true,
+  "editor.smoothScrolling": true,
+  "terminal.integrated.smoothScrolling": true,
+  "editor.renderWhitespace": "all",
+  "editor.guides.bracketPairs": "active",
+  "editor.lineHeight": 2,
+  "editor.fontSize": 17,
+  "editor.fontFamily": "GoMono Nerd Font",
+  "editor.defaultFormatter": "charliermarsh.ruff",
+  "editor.formatOnSave": true,
+  "files.autoSave": "onFocusChange",
+  "editor.cursorSmoothCaretAnimation": "on",
+  "workbench.iconTheme": "vscode-icons",
+  "editor.stickyScroll.enabled": true,
+  "terminal.integrated.cursorWidth": 2,
+  "editor.cursorBlinking": "expand",
+  "typescript.updateImportsOnFileMove.enabled": "always",
+  "terminal.integrated.lineHeight": 1.5,
+  "terminal.integrated.fontFamily": "JetBrainsMono Nerd Font Propo",
+  "terminal.integrated.fontSize": 15,
+  "terminal.integrated.cursorBlinking": true,
+  "workbench.colorTheme": "Material Theme Ocean High Contrast",
+  "markdown.extension.preview.autoShowPreviewToSide": true,
+  "markdown.extension.print.theme": "dark",
+  "markdown.extension.toc.orderedList": true,
+  "codeium.enableConfig": {
+    "*": true,
+    "markdown": true,
+    "plaintext": true,
+    "pip-requirements": true
+  },
+  "vsicons.dontShowNewVersionMessage": true,
+  "remote.autoForwardPortsSource": "hybrid",
+  "git.openRepositoryInParentFolders": "always"
+}

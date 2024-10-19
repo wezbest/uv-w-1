@@ -333,5 +333,5 @@ requires-dist = [
     { name = "pytest-playwright", specifier = ">=0.5.2" },
     { name = "requests", specifier = ">=2.32.3" },
     { name = "rich", specifier = ">=13.9.2" },
-    { name = "typer", specifier = ">=0.12.5" },
+    { name = "typer", extras = ["all"], specifier = ">=0.12.5" },
 ]

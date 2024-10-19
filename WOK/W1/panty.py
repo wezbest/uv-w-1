@@ -1,7 +1,7 @@
 # Main entry point for the typer cli
 import typer
 from rich import print
-from src.banner.b1 import pussy
+from src.banner.b2 import pussy
 
 panty = typer.Typer(name="AssSniff")
 
@@ -14,6 +14,7 @@ def drive():
 
 @panty.command()
 def drive2():
+    pussy()
     print("hello Sniff")
 
 

@@ -17,16 +17,14 @@ b1() {
 b2() {
     echo -e "-----------------------------------------------"
     echo -e "  Shell script to setup the following "
-    echo -e "${GREEN}  uv add typer   ${NC}"
-    echo -e "${GREEN}  uv add pytest-playwright   ${NC}"
+    echo -e "${GREEN}  uv add typer rich requests pytest-playwright  ${NC}"
     echo -e "${GREEN}  uvx playwright install --with-deps   ${NC}"
     echo -e "-----------------------------------------------"
 }
 
 s1() {
     echo -e "${YELLOW} Executing ${NC}"
-    uv add typer
-    uv add pytest-playwright
+    uv add typer rich requests pytest-playwright
     uvx playwright install --with-deps
     uv tree
 }

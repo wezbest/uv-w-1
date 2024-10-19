@@ -1,6 +1,12 @@
-def main():
-    print("Hello from w1!")
+# Main entry point for the typer cli 
+import typer 
+from rich import print
 
+panty = typer.Typer(name="AssSniff")
+
+@panty.command()
+def drive():
+    print("hello")
 
 if __name__ == "__main__":
-    main()
+    panty()

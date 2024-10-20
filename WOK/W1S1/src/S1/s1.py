@@ -52,19 +52,18 @@ async def navigate_and_check_url(page, url):
             logger.warning(f"Warning: URL redirected to {response.url}")
     else:
         logger.error(f"Failed to load URL. Status: {response.status}")
-    return response.ok
 
 
 async def scroll_to_bottom(page):
-    logger.info("Scrolling to the bottom of the page...")
-    await page.evaluate("window.scrollTo(0, document.body.scrollHeight)")
-    await asyncio.sleep(2)  # Wait for any lazy-loaded content
+    # Scroll to bottom of page
+    await page.evaluate("window.scrollTo(0, document.body.scrollHeight);")
 
 
 async def capture_screenshot(page, url):
-    screenshot_path = f"screenshots/{get_filename(url, 'png')}"
-    await page.screenshot(path=screenshot_path)
-    logger.info(f"Screenshot saved as {screenshot_path}")
+    # Take a screenshot
+    screenshot_name = url.split("/")[-2] + ".png"
+    await page.screenshot(path=f"panties/{screenshot_name}")
+    logger.info(f"Screenshot saved as screenshots/{screenshot_name}")
 
 
 async def s1s():
@@ -73,6 +72,10 @@ async def s1s():
 
     try:
         if await navigate_and_check_url(page, URL):
+            # Enter search query
+            await page.fill("input[name='s']", "ass")
+            logger.info("Search query entered: ass")
+
             await scroll_to_bottom(page)
             await capture_screenshot(page, URL)
             logger.info(f"Recording video to {video_path}")

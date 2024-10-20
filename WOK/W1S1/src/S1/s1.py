@@ -4,6 +4,9 @@ from rich.logging import RichHandler
 import logging
 from datetime import datetime
 from urllib.parse import urlparse
+from rich.traceback import install
+
+install(show_locals=True)
 
 URL = "https://porngifs.xxx/"
 USER_AGENT = "Mozilla/5.0 (Linux; Android 11; Redmi Note 8 Pro) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Mobile Safari/537.36"
@@ -27,13 +30,13 @@ def get_filename(url, extension):
 async def setup_browser():
     p = await async_playwright().start()
     browser = await p.chromium.launch()
-    video_path = f"videos/{get_filename(URL, 'webm')}"
+    video_path = f"panties/{get_filename(URL, 'webm')}"
     context = await browser.new_context(
         user_agent=USER_AGENT,
         locale="de-DE",
         geolocation={"longitude": 13.4050, "latitude": 52.5200},
         permissions=["geolocation"],
-        record_video_dir="videos/",
+        record_video_dir="panties/",
         record_video_size={"width": 1280, "height": 720},
     )
     return p, browser, context, video_path

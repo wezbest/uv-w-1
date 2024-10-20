@@ -1,0 +1,15 @@
+[project]
+name = "work1"
+version = "0.1.0"
+description = "SniffingSweatyPanty"
+authors = [
+    { name = "WomanAssSniffer" },
+]
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "pandas>=2.2.3",
+    "playwright>=1.47.0",
+    "pytest-playwright>=0.5.2",
+    "rich>=13.8.1",
+]

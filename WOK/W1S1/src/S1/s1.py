@@ -67,7 +67,7 @@ async def capture_screenshot(page, url):
     logger.info(f"Screenshot saved as {screenshot_path}")
 
 
-async def main():
+async def s1s():
     p, browser, context, video_path = await setup_browser()
     page = await context.new_page()
 

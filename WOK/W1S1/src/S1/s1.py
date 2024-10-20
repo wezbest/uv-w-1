@@ -52,6 +52,7 @@ async def navigate_and_check_url(page, url):
             logger.warning(f"Warning: URL redirected to {response.url}")
     else:
         logger.error(f"Failed to load URL. Status: {response.status}")
+    return response.ok
 
 
 async def scroll_to_bottom(page):
@@ -66,20 +67,25 @@ async def capture_screenshot(page, url):
     logger.info(f"Screenshot saved as screenshots/{screenshot_name}")
 
 
+async def perform_action_on_page(page):
+    # Enter search query
+    await page.fill("input#searched-query", "ass")
+    await page.press("input#searched-query", "Enter")
+    logger.info("Search query entered: ass")
+
+    await scroll_to_bottom(page)
+    await capture_screenshot(page, URL)
+    logger.info(f"Recording video to panties/{get_filename(URL, 'webm')}")
+    await asyncio.sleep(5)  # Record for 5 seconds
+
+
 async def s1s():
     p, browser, context, video_path = await setup_browser()
     page = await context.new_page()
 
     try:
         if await navigate_and_check_url(page, URL):
-            # Enter search query
-            await page.fill("input[name='s']", "ass")
-            logger.info("Search query entered: ass")
-
-            await scroll_to_bottom(page)
-            await capture_screenshot(page, URL)
-            logger.info(f"Recording video to {video_path}")
-            await asyncio.sleep(5)  # Record for 5 seconds
+            await perform_action_on_page(page)
     except Exception as e:
         logger.exception(f"An error occurred: {str(e)}")
     finally:

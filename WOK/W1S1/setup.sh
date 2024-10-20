@@ -24,7 +24,7 @@ b2() {
 
 s1() {
     echo -e "${YELLOW} Executing ${NC}"
-    uv add typer rich requests pytest-playwright asyncio
+    uv add typer rich requests pytest-playwright playwright-stealth asyncio
     uvx playwright install --with-deps
     uv tree
 }

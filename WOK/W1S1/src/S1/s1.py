@@ -173,15 +173,49 @@ async def s1s():
     """
     This function sets up the browser, navigates to each URL, and performs an action on each page.
     """
-    browser, context, page = await setup_browser()
-    try:
-        for url in URLS:
-            try:
-                if await navigate_and_check_url(page, url):
-                    await perform_action_on_page(page, url)
-            except Exception as e:
-                logger.exception(f"An error occurred: {str(e)}")
-    finally:
-        await page.close()
-        await context.close()
-        await browser.close()
+    async with async_playwright() as p:
+        browser = await p.chromium.launch(
+            headless=STEALTH_SETTINGS["headless"],  # Set headless mode
+            args=["--no-sandbox", "--disable-setuid-sandbox"],
+        )
+        context = await browser.new_context(
+            user_agent=USER_AGENT,
+            locale="de-DE",
+            geolocation={"longitude": -43.1729, "latitude": -22.9068},
+            permissions=["geolocation"],
+            record_video_dir="panties/",
+            record_video_size={"width": 1280, "height": 720},
+        )
+        page = await context.new_page()
+        await page.evaluate(
+            """
+            Object.defineProperty(navigator, 'webdriver', {
+              get: () => false,
+            });
+            """
+        )
+        await page.evaluate(
+            """
+            Object.defineProperty(navigator, 'languages', {
+              get: () => ['en-US', 'en'],
+            });
+            """
+        )
+        await page.evaluate(
+            """
+            const newProto = navigator.__proto__;
+            delete newProto.webdriver;
+            """
+        )
+
+        try:
+            for url in URLS:
+                try:
+                    if await navigate_and_check_url(page, url):
+                        await perform_action_on_page(page, url)
+                except Exception as e:
+                    logger.exception(f"An error occurred: {str(e)}")
+        finally:
+            await page.close()
+            await context.close()
+            await browser.close()

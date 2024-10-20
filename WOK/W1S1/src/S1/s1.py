@@ -34,7 +34,7 @@ async def setup_browser():
     context = await browser.new_context(
         user_agent=USER_AGENT,
         locale="de-DE",
-        geolocation={"longitude": 13.4050, "latitude": 52.5200},
+        geolocation={"longitude": -43.1729, "latitude": -22.9068},
         permissions=["geolocation"],
         record_video_dir="panties/",
         record_video_size={"width": 1280, "height": 720},

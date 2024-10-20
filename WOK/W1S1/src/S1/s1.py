@@ -37,13 +37,31 @@ logging.basicConfig(
 logger = logging.getLogger("rich")
 
 
+# Function to get the filename
 def get_filename(url, extension):
+    """
+    This function generates a filename based on the URL and the extension.
+
+    Args:
+        url (str): The URL to generate the filename from.
+        extension (str): The file extension to use.
+
+    Returns:
+        str: The generated filename.
+    """
     domain = urlparse(url).netloc
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     return f"{domain}_{timestamp}.{extension}"
 
 
+# Function to set up the browser
 async def setup_browser():
+    """
+    This function sets up the browser, context, and page.
+
+    Returns:
+        tuple: A tuple containing the browser, context, and page.
+    """
     async with async_playwright() as p:
         browser = await p.chromium.launch(
             headless=STEALTH_SETTINGS["headless"],  # Set headless mode
@@ -81,7 +99,18 @@ async def setup_browser():
         return browser, context, page
 
 
+# Function to navigate and check the URL
 async def navigate_and_check_url(page, url):
+    """
+    This function navigates to the URL and checks if the URL is correct.
+
+    Args:
+        page (object): The page object.
+        url (str): The URL to navigate to.
+
+    Returns:
+        bool: True if the URL is correct, False otherwise.
+    """
     response = await page.goto(url)
     if response.ok:
         logger.info(f"Successfully loaded URL: {response.url}")
@@ -94,19 +123,40 @@ async def navigate_and_check_url(page, url):
     return response.ok
 
 
+# Function to scroll to the bottom of the page
 async def scroll_to_bottom(page):
-    # Scroll to bottom of page
+    """
+    This function scrolls to the bottom of the page.
+
+    Args:
+        page (object): The page object.
+    """
     await page.evaluate("window.scrollTo(0, document.body.scrollHeight);")
 
 
+# Function to capture a screenshot
 async def capture_screenshot(page, url):
-    # Take a screenshot
+    """
+    This function captures a screenshot of the page.
+
+    Args:
+        page (object): The page object.
+        url (str): The URL of the page.
+    """
     screenshot_name = url.split("/")[-2] + ".png"
     await page.screenshot(path=f"panties/{screenshot_name}")
     logger.info(f"Screenshot saved as screenshots/{screenshot_name}")
 
 
+# Function to perform an action on the page
 async def perform_action_on_page(page, url):
+    """
+    This function performs an action on the page.
+
+    Args:
+        page (object): The page object.
+        url (str): The URL of the page.
+    """
     # Enter search query
     await page.fill("input#searched-query", "ass")
     await page.press("input#searched-query", "Enter")
@@ -118,7 +168,11 @@ async def perform_action_on_page(page, url):
     await asyncio.sleep(5)  # Record for 5 seconds
 
 
+# Main function
 async def s1s():
+    """
+    This function sets up the browser, navigates to each URL, and performs an action on each page.
+    """
     browser, context, page = await setup_browser()
     try:
         for url in URLS:
@@ -128,5 +182,6 @@ async def s1s():
             except Exception as e:
                 logger.exception(f"An error occurred: {str(e)}")
     finally:
+        await page.close()
         await context.close()
         await browser.close()

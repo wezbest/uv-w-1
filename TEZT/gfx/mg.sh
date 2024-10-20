@@ -15,6 +15,7 @@ b1() {
 }
 
 f1() {
+    # Convert gif with image-to-ascii
     
 }
 

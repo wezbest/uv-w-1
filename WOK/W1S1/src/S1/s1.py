@@ -44,41 +44,41 @@ def get_filename(url, extension):
 
 
 async def setup_browser():
-    p = await async_playwright().start()
-    browser = await p.chromium.launch(
-        headless=STEALTH_SETTINGS["headless"],  # Set headless mode
-        args=["--no-sandbox", "--disable-setuid-sandbox"],
-    )
-    context = await browser.new_context(
-        user_agent=USER_AGENT,
-        locale="de-DE",
-        geolocation={"longitude": -43.1729, "latitude": -22.9068},
-        permissions=["geolocation"],
-        record_video_dir="panties/",
-        record_video_size={"width": 1280, "height": 720},
-    )
-    page = await context.new_page()
-    await page.evaluate_on_new_document(
-        """
-        Object.defineProperty(navigator, 'webdriver', {
-          get: () => false,
-        });
-        """
-    )
-    await page.evaluate_on_new_document(
-        """
-        Object.defineProperty(navigator, 'languages', {
-          get: () => ['en-US', 'en'],
-        });
-        """
-    )
-    await page.evaluate_on_new_document(
-        """
-        const newProto = navigator.__proto__;
-        delete newProto.webdriver;
-        """
-    )
-    return p, browser, context, page
+    async with async_playwright() as p:
+        browser = await p.chromium.launch(
+            headless=STEALTH_SETTINGS["headless"],  # Set headless mode
+            args=["--no-sandbox", "--disable-setuid-sandbox"],
+        )
+        context = await browser.new_context(
+            user_agent=USER_AGENT,
+            locale="de-DE",
+            geolocation={"longitude": -43.1729, "latitude": -22.9068},
+            permissions=["geolocation"],
+            record_video_dir="panties/",
+            record_video_size={"width": 1280, "height": 720},
+        )
+        page = await context.new_page()
+        await page.evaluate(
+            """
+            Object.defineProperty(navigator, 'webdriver', {
+              get: () => false,
+            });
+            """
+        )
+        await page.evaluate(
+            """
+            Object.defineProperty(navigator, 'languages', {
+              get: () => ['en-US', 'en'],
+            });
+            """
+        )
+        await page.evaluate(
+            """
+            const newProto = navigator.__proto__;
+            delete newProto.webdriver;
+            """
+        )
+        return browser, context, page
 
 
 async def navigate_and_check_url(page, url):
@@ -119,15 +119,14 @@ async def perform_action_on_page(page, url):
 
 
 async def s1s():
-    p, browser, context, page = await setup_browser()
-    for url in URLS:
-        try:
-            if await navigate_and_check_url(page, url):
-                await perform_action_on_page(page, url)
-        except Exception as e:
-            logger.exception(f"An error occurred: {str(e)}")
-        finally:
-            await context.close()
-    await browser.close()
-    await p.stop()
-    logger.info("All videos saved")
+    browser, context, page = await setup_browser()
+    try:
+        for url in URLS:
+            try:
+                if await navigate_and_check_url(page, url):
+                    await perform_action_on_page(page, url)
+            except Exception as e:
+                logger.exception(f"An error occurred: {str(e)}")
+    finally:
+        await context.close()
+        await browser.close()

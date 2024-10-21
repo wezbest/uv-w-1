@@ -14,7 +14,6 @@ def setup_logger():
     logger.setLevel(logging.INFO)
     handler = RichHandler()
     logger.addHandler(handler)
-    logger.markup = True
     return logger
 
 
@@ -22,10 +21,7 @@ logger = setup_logger()
 
 
 async def scrape_website(page, url):
-    logger.info(f"[bold blue1]Scraping[/bold blue1]: {url}")
-
-    # Set user agent
-    await page.set_user_agent(USER_AGENT)
+    logger.info(f"[bold blue1]Scraping[/bold blue1]: {url}", extra={"markup": True})
 
     # Navigate to the URL
     await page.goto(url, wait_until="networkidle")
@@ -43,7 +39,9 @@ async def scrape_website(page, url):
         OUTPUT_DIRS["screenshots"], f"{url.split('//')}_{timestamp}.png"
     )
     await page.screenshot(path=screenshot_path, full_page=True)
-    logger.info(f"[green]Screenshot saved[/green]: {screenshot_path}")
+    logger.info(
+        f"[green]Screenshot saved[/green]: {screenshot_path}", extra={"markup": True}
+    )
 
     # Record a video
     video_path = os.path.join(
@@ -53,9 +51,12 @@ async def scrape_website(page, url):
         await context.tracing.start(screenshots=True, snapshots=True, sources=True)
         await page.reload()  # Trigger some action for the video
         await context.tracing.stop(path=video_path)
-        logger.info(f"[green]Video saved[/green]: {video_path}")
+        logger.info(f"[green]Video saved[/green]: {video_path}", extra={"markup": True})
     except Exception as e:
-        logger.error(f"[bold red]Error recording video[/bold red]: {str(e)}")
+        logger.error(
+            f"[bold red]Error recording video[/bold red]: {str(e)}",
+            extra={"markup": True},
+        )
 
 
 async def process_url(context, url):
@@ -63,6 +64,9 @@ async def process_url(context, url):
     try:
         await scrape_website(page, url)
     except Exception as e:
-        logger.error(f"[bold red]Error scraping[/bold red] {url}: {str(e)}")
+        logger.error(
+            f"[bold red]Error scraping[/bold red] {url}: {str(e)}",
+            extra={"markup": True},
+        )
     finally:
         await page.close()

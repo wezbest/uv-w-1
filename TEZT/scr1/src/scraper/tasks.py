@@ -8,14 +8,18 @@ from rich.traceback import install
 
 install(show_locals=True)
 
+
 def setup_logger():
     logger = logging.getLogger()
     logger.setLevel(logging.INFO)
     handler = RichHandler()
     logger.addHandler(handler)
+    logger.markup = True
     return logger
 
+
 logger = setup_logger()
+
 
 async def scrape_website(page, url):
     logger.info(f"[bold blue1]Scraping[/bold blue1]: {url}")
@@ -52,6 +56,7 @@ async def scrape_website(page, url):
         logger.info(f"[green]Video saved[/green]: {video_path}")
     except Exception as e:
         logger.error(f"[bold red]Error recording video[/bold red]: {str(e)}")
+
 
 async def process_url(context, url):
     page = await context.new_page()

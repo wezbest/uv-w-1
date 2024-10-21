@@ -1,5 +1,3 @@
-# scraper/tasks.py
-
 import os
 import datetime
 from src.scraper.logger import setup_logger
@@ -12,7 +10,7 @@ logger = setup_logger()
 
 
 async def scrape_website(page, url):
-    logger.info(f"[bold blue]Scraping[/bold blue]: {url}")
+    logger.info(f"[bold blue1]Scraping[/bold blue1]: {url}")
 
     # Navigate to the URL
     await page.goto(url, wait_until="networkidle")
@@ -36,10 +34,13 @@ async def scrape_website(page, url):
     video_path = os.path.join(
         OUTPUT_DIRS["videos"], f"{url.split('//')[1]}_{timestamp}.webm"
     )
-    await context.tracing.start(screenshots=True, snapshots=True, sources=True)
-    await page.reload()  # Trigger some action for the video
-    await context.tracing.stop(path=video_path)
-    logger.info(f"[green]Video saved[/green]: {video_path}")
+    try:
+        await context.tracing.start(screenshots=True, snapshots=True, sources=True)
+        await page.reload()  # Trigger some action for the video
+        await context.tracing.stop(path=video_path)
+        logger.info(f"[green]Video saved[/green]: {video_path}")
+    except Exception as e:
+        logger.error(f"[bold red]Error recording video[/bold red]: {str(e)}")
 
 
 async def process_url(context, url):

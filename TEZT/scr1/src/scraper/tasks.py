@@ -72,8 +72,16 @@ async def scrape_website(page, url):
         )
 
 
-async def process_url(url):
-    playwright, browser, context = await setup_browser()
+async def process_url(browser, url):
+    context = await browser.new_context(**BROWSER_SETTINGS, user_agent=USER_AGENT)
+
+    # Use Playwright Stealth to evade detection
+    await stealth_async(context)
+
+    # Set geolocation to Thailand (Bangkok)
+    await context.set_geolocation({"latitude": 13.7563, "longitude": 100.5018})
+    await context.grant_permissions(["geolocation"])
+
     page = await context.new_page()
     try:
         await scrape_website(page, url)
@@ -85,5 +93,3 @@ async def process_url(url):
     finally:
         await page.close()
         await context.close()
-        await browser.close()
-        await playwright.stop()

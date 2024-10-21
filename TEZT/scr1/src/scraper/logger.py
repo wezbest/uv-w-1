@@ -2,6 +2,9 @@
 
 import logging
 from rich.logging import RichHandler
+from rich.traceback import install
+
+install(show_locals=True)
 
 
 def setup_logger():

@@ -2,6 +2,9 @@
 
 from playwright.async_api import async_playwright
 from config import BROWSER_SETTINGS
+from rich.traceback import install
+
+install(show_locals=True)
 
 
 async def setup_browser():

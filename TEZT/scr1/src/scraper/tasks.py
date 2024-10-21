@@ -4,6 +4,9 @@ import os
 import datetime
 from scraper.logger import setup_logger
 from config import GEOLOCATION, OUTPUT_DIRS
+from rich.traceback import install
+
+install(show_locals=True)
 
 logger = setup_logger()
 

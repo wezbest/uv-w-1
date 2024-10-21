@@ -1,6 +1,10 @@
 # All configuation files are in here
 # config.py
 
+from rich.traceback import install
+
+install(show_locals=True)
+
 URLS = [
     "https://openlibrary.org/",
     "https://www.gutenberg.org/",

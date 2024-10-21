@@ -2,7 +2,7 @@
 
 import os
 import datetime
-from scraper.logger import setup_logger
+from logger import setup_logger
 from config import GEOLOCATION, OUTPUT_DIRS
 from rich.traceback import install
 

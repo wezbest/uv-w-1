@@ -26,7 +26,7 @@ async def main():
         await browser.close()
         await playwright.stop()
 
-    logger.info("[bold green]Scraping completed![/bold green]")
+    logger.info("[bold green]Scraping completed![/bold green]", extra={"markup": True})
 
 
 if __name__ == "__main__":

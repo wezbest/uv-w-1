@@ -13,5 +13,6 @@ def setup_logger():
         format="%(message)s",
         datefmt="[%X]",
         handlers=[RichHandler(rich_tracebacks=True)],
+        markup=True,
     )
     return logging.getLogger("rich")

@@ -1,4 +1,3 @@
-# scraper.py
 from playwright.async_api import async_playwright
 from rich.logging import RichHandler
 import logging

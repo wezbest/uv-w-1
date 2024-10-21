@@ -5,6 +5,7 @@ import logging
 from datetime import datetime
 from rich.traceback import install
 import os
+import asyncio
 
 install(show_locals=True)
 
@@ -72,7 +73,7 @@ async def scrape_github(repo: str, issue_url: str, pr_url: str) -> None:
     """
     async with async_playwright() as p:
         browser = await p.chromium.launch(headless=True)
-        context = browser.new_context(
+        context = await browser.new_context(
             geolocation={"longitude": 41.890221, "latitude": 12.492348},
             permissions=["geolocation"],
         )
@@ -134,16 +135,4 @@ async def sniff() -> None:
     """
     repos = await read_repos("repos.txt")
     if not repos:
-        logging.error(
-            "[bold red]No repositories found.[/bold red]", extra={"markup": True}
-        )
-        return
-
-    for repo in repos:
-        logging.info(f"[bold blue]Scraping {repo}...[/bold blue]")
-        issue_url, pr_url = await generate_urls(repo)
-        await scrape_github(repo, issue_url, pr_url)
-        logging.info(
-            f"[bold green]Finished scraping {repo}.[/bold green]",
-            extra={"markup": True},
-        )
+        logging.error("[bold red]No repositories found.[/bold red]")

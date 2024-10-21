@@ -4,6 +4,7 @@ from rich.logging import RichHandler
 import logging
 from datetime import datetime
 from rich.traceback import install
+import os
 
 install(show_locals=True)
 
@@ -14,6 +15,10 @@ logging.basicConfig(
     datefmt="[%X]",
     handlers=[RichHandler(rich_tracebacks=True)],
 )
+
+# Create the results directory if it doesn't exist
+if not os.path.exists("results"):
+    os.makedirs("results")
 
 
 # Define a function to read the repository names from a text file
@@ -67,23 +72,19 @@ async def scrape_github(repo: str, issue_url: str, pr_url: str) -> None:
     """
     async with async_playwright() as p:
         browser = await p.chromium.launch(headless=True)
-        context = await browser.newContext()
-        page = await context.newPage()
+        context = await browser.new_browser_context()
+        page = await context.new_page()
 
         # Set the user agent
         user_agent = await read_user_agent()
-        await page.setUserAgent(user_agent)
+        await page.set_user_agent(user_agent)
 
         # Scrape the issues page
         await page.goto(issue_url)
-        await page.screenshot(
-            path=f"{repo}_issues_{datetime.now().strftime('%Y%m%d_%H%M%S')}.png"
-        )
-        await page.video.save_as(
-            f"{repo}_issues_{datetime.now().strftime('%Y%m%d_%H%M%S')}.webm"
-        )
         issues = await page.query_selector_all(".js-issue-row")
-        with open(f"{repo}_issues.txt", "w") as file:
+        with open(
+            f"results/{repo}_issues_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt", "w"
+        ) as file:
             for issue in issues:
                 title = await issue.query_selector(".js-issue-title")
                 if title:
@@ -91,14 +92,10 @@ async def scrape_github(repo: str, issue_url: str, pr_url: str) -> None:
 
         # Scrape the PRs page
         await page.goto(pr_url)
-        await page.screenshot(
-            path=f"{repo}_prs_{datetime.now().strftime('%Y%m%d_%H%M%S')}.png"
-        )
-        await page.video.save_as(
-            f"{repo}_prs_{datetime.now().strftime('%Y%m%d_%H%M%S')}.webm"
-        )
         prs = await page.query_selector_all(".js-issue-row")
-        with open(f"{repo}_prs.txt", "w") as file:
+        with open(
+            f"results/{repo}_prs_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt", "w"
+        ) as file:
             for pr in prs:
                 title = await pr.query_selector(".js-issue-title")
                 if title:

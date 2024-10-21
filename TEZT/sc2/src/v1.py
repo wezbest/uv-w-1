@@ -33,7 +33,9 @@ async def read_repos(file_name: str) -> list:
             repos = [repo.strip() for repo in repos]
             return repos
     except FileNotFoundError:
-        logging.error(f"[bold red]File {file_name} not found.[/bold red]")
+        logging.error(
+            f"[bold red]File {file_name} not found.[/bold red]", extra={"markup": True}
+        )
         return []
 
 
@@ -119,7 +121,8 @@ async def read_user_agent() -> str:
             return user_agent
     except FileNotFoundError:
         logging.error(
-            "[bold red]User agent file not found. Using default user agent.[/bold red]"
+            "[bold red]User agent file not found. Using default user agent.[/bold red]",
+            extra={"markup": True},
         )
         return "Mozilla/5.0 (Linux; Android 10) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.114 Mobile Safari/537.36"
 
@@ -131,11 +134,16 @@ async def sniff() -> None:
     """
     repos = await read_repos("repos.txt")
     if not repos:
-        logging.error("[bold red]No repositories found.[/bold red]")
+        logging.error(
+            "[bold red]No repositories found.[/bold red]", extra={"markup": True}
+        )
         return
 
     for repo in repos:
         logging.info(f"[bold blue]Scraping {repo}...[/bold blue]")
         issue_url, pr_url = await generate_urls(repo)
         await scrape_github(repo, issue_url, pr_url)
-        logging.info(f"[bold green]Finished scraping {repo}.[/bold green]")
+        logging.info(
+            f"[bold green]Finished scraping {repo}.[/bold green]",
+            extra={"markup": True},
+        )

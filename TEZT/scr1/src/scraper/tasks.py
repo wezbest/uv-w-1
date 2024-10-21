@@ -3,6 +3,7 @@ import datetime
 import logging
 from rich import print
 from rich.logging import RichHandler
+from src.scraper.browser import start_recording, stop_recording
 from src.config import GEOLOCATION, OUTPUT_DIRS, USER_AGENT
 from rich.traceback import install
 
@@ -51,10 +52,10 @@ async def scrape_website(page, url):
     )
 
     try:
-        await context.tracing.start(screenshots=True, snapshots=True, sources=True)
+        await start_recording(page.context)
         await page.reload()  # Trigger some action for the video
-        await page.wait_for_timeout(5000)
-        await context.tracing.stop(path=video_path)
+        await page.wait_for_timeout(5000)  # Wait for 5 seconds to capture the page load
+        await stop_recording(page.context, video_path)
         logger.info(f"[green]Video saved[/green]: {video_path}", extra={"markup": True})
     except Exception as e:
         logger.error(

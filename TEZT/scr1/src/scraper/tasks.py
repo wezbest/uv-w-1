@@ -73,7 +73,8 @@ async def scrape_website(page, url):
         )
 
 
-async def process_url(browser, url):
+async def process_url(playwright, url):
+    browser = await playwright.chromium.launch(headless=True)
     context = await browser.new_context(**BROWSER_SETTINGS, user_agent=USER_AGENT)
 
     # Use Playwright Stealth to evade detection
@@ -94,3 +95,4 @@ async def process_url(browser, url):
     finally:
         await page.close()
         await context.close()
+        await browser.close()

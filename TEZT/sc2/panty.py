@@ -1,5 +1,9 @@
+from src.v1 import sniff
+import asyncio
+
+
 def main():
-    print("Hello from sc2!")
+    asyncio.run(sniff())
 
 
 if __name__ == "__main__":

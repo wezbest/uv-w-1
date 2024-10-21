@@ -1,10 +1,12 @@
 import os
 import datetime
 from src.scraper.logger import setup_logger
-from src.config import GEOLOCATION, OUTPUT_DIRS
+from src.config import GEOLOCATION, OUTPUT_DIRS, USER_AGENT
 from rich.traceback import install
 
+
 install(show_locals=True)
+
 
 logger = setup_logger()
 
@@ -12,12 +14,15 @@ logger = setup_logger()
 async def scrape_website(page, url):
     logger.info(f"[bold blue1]Scraping[/bold blue1]: {url}")
 
+    # Set user agent
+    await page.set_user_agent(USER_AGENT)
+
     # Navigate to the URL
     await page.goto(url, wait_until="networkidle")
 
-    # Set geolocation to Brazil (Rio de Janeiro)
+    # Set geolocation to Thailand (Bangkok)
     context = page.context
-    await context.set_geolocation(GEOLOCATION)
+    await context.set_geolocation({"latitude": 13.7563, "longitude": 100.5018})
     await context.grant_permissions(["geolocation"])
 
     # Get the current date and time

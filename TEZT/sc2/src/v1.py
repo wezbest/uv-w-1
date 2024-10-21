@@ -1,3 +1,4 @@
+# scraper.py
 from playwright.async_api import async_playwright
 from rich.logging import RichHandler
 import logging
@@ -23,15 +24,6 @@ if not os.path.exists("results"):
 
 # Define a function to read the repository names from a text file
 async def read_repos(file_name: str) -> list:
-    """
-    Reads the repository names from a text file.
-
-    Args:
-    file_name (str): The name of the text file containing the repository names.
-
-    Returns:
-    list: A list of repository names.
-    """
     try:
         with open(file_name, "r") as file:
             repos = file.readlines()
@@ -45,31 +37,28 @@ async def read_repos(file_name: str) -> list:
 
 
 # Define a function to generate the GitHub issue and PR URLs
-async def generate_urls(repo: str) -> tuple:
-    """
-    Generates the GitHub issue and PR URLs for a given repository.
-
-    Args:
-    repo (str): The name of the repository in the format 'owner/repo'.
-
-    Returns:
-    tuple: A tuple containing the issue URL and the PR URL.
-    """
+def generate_urls(repo: str) -> tuple:
     issue_url = f"https://github.com/{repo}/issues"
     pr_url = f"https://github.com/{repo}/pulls"
     return issue_url, pr_url
 
 
+# Define a function to read the user agent from a text file
+def read_user_agent():
+    try:
+        with open("useragent.txt", "r") as file:
+            user_agent = file.read().strip()
+            return user_agent
+    except FileNotFoundError:
+        logging.error(
+            "[bold red]User agent file not found. Using default user agent.[/bold red]",
+            extra={"markup": True},
+        )
+        return "Mozilla/5.0 (Linux; Android 10) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.114 Mobile Safari/537.36"
+
+
 # Define a function to scrape the first page of GitHub issues and PRs
 async def scrape_github(repo: str, issue_url: str, pr_url: str) -> None:
-    """
-    Scrapes the first page of GitHub issues and PRs for a given repository.
-
-    Args:
-    repo (str): The name of the repository in the format 'owner/repo'.
-    issue_url (str): The URL of the GitHub issues page.
-    pr_url (str): The URL of the GitHub PRs page.
-    """
     async with async_playwright() as p:
         browser = await p.chromium.launch(headless=True)
         context = await browser.new_context(
@@ -79,7 +68,7 @@ async def scrape_github(repo: str, issue_url: str, pr_url: str) -> None:
         page = await context.new_page()
 
         # Set the user agent
-        user_agent = await read_user_agent()
+        user_agent = read_user_agent()
         await page.set_user_agent(user_agent)
 
         # Scrape the issues page
@@ -107,31 +96,24 @@ async def scrape_github(repo: str, issue_url: str, pr_url: str) -> None:
         await browser.close()
 
 
-# Define a function to read the user agent from a text file
-async def read_user_agent() -> str:
-    """
-    Reads the user agent from a text file.
-
-    Returns:
-    str: The user agent.
-    """
-    try:
-        with open("useragent.txt", "r") as file:
-            user_agent = file.read().strip()
-            return user_agent
-    except FileNotFoundError:
-        logging.error(
-            "[bold red]User agent file not found. Using default user agent.[/bold red]",
-            extra={"markup": True},
-        )
-        return "Mozilla/5.0 (Linux; Android 10) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.114 Mobile Safari/537.36"
-
-
 # Define the main function
-async def sniff() -> None:
-    """
-    The main function.
-    """
+async def main() -> None:
     repos = await read_repos("repos.txt")
     if not repos:
-        logging.error("[bold red]No repositories found.[/bold red]")
+        logging.error(
+            "[bold red]No repositories found.[/bold red]", extra={"markup": True}
+        )
+        return
+
+    for repo in repos:
+        logging.info(f"[bold blue]Scraping {repo}...[/bold blue]")
+        issue_url, pr_url = generate_urls(repo)
+        await scrape_github(repo, issue_url, pr_url)
+        logging.info(
+            f"[bold green]Finished scraping {repo}.[/bold green]",
+            extra={"markup": True},
+        )
+
+
+if __name__ == "__main__":
+    asyncio.run(main())

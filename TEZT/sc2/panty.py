@@ -1,12 +1,8 @@
-from src.v1 import sniff
-from src.b1 import pussy
-import asyncio
+# main.py
+from src.v1 import main as main_sniff
+from src.b1 import pussy  # Import the function, not the module
 
 
 def main():
-    pussy()
-    asyncio.run(sniff())
-
-
-if __name__ == "__main__":
-    main()
+    pussy()  # Run the synchronous function
+    main_sniff()  # Run

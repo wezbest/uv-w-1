@@ -8,6 +8,7 @@ install(show_locals=True)
 URLS = [
     "https://nhentai.net/",
     "https://www.ehentai.com/",
+    "https://allporncomic.com/porncomic/my-bigger-half-amarsroshta/1-5-my-bigger-half-images-only-amarsroshta/",
     # Add more URLs here
 ]
 

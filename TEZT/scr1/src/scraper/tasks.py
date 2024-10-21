@@ -55,7 +55,7 @@ async def scrape_website(page, url):
 
     try:
         # Start video recording
-        await page.context.tracing.start(screenshots=True, snapshots=True, sources=True)
+        await page.context.browser.start_tracing(path=video_path)
 
         # Trigger some action for the video (e.g., reload the page)
         await page.reload()
@@ -63,8 +63,8 @@ async def scrape_website(page, url):
         # Wait for 5 seconds to capture the page load
         await page.wait_for_timeout(5000)
 
-        # Stop video recording and save the video
-        await page.context.tracing.stop(path=video_path)
+        # Stop video recording
+        await page.context.browser.stop_tracing()
         logger.info(f"[green]Video saved[/green]: {video_path}", extra={"markup": True})
     except Exception as e:
         logger.error(

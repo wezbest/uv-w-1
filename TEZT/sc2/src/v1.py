@@ -72,7 +72,10 @@ async def scrape_github(repo: str, issue_url: str, pr_url: str) -> None:
     """
     async with async_playwright() as p:
         browser = await p.chromium.launch(headless=True)
-        context = await browser.new_browser_context()
+        context = browser.new_context(
+            geolocation={"longitude": 41.890221, "latitude": 12.492348},
+            permissions=["geolocation"],
+        )
         page = await context.new_page()
 
         # Set the user agent

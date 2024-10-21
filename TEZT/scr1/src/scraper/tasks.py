@@ -1,11 +1,13 @@
+# tasks.py
+
 import os
 import datetime
 import logging
 import re
 from rich import print
 from rich.logging import RichHandler
-from src.scraper.browser import start_recording, stop_recording
-from src.config import GEOLOCATION, OUTPUT_DIRS, USER_AGENT
+from src.scraper.browser import setup_browser
+from src.config import OUTPUT_DIRS
 from rich.traceback import install
 
 install(show_locals=True)
@@ -27,11 +29,6 @@ async def scrape_website(page, url):
 
     # Navigate to the URL
     await page.goto(url, wait_until="networkidle")
-
-    # Set geolocation to Thailand (Bangkok)
-    context = page.context
-    await context.set_geolocation({"latitude": 13.7563, "longitude": 100.5018})
-    await context.grant_permissions(["geolocation"])
 
     # Get the current date and time
     timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
@@ -56,27 +53,18 @@ async def scrape_website(page, url):
     )
 
     try:
-        # Check if recording is already in progress
-        if not context.is_recording():
-            # Start video recording
-            await start_recording(page.context)
+        # Start video recording
+        await page.context.tracing.start(screenshots=True, snapshots=True, sources=True)
 
-            # Trigger some action for the video (e.g., reload the page)
-            await page.reload()
+        # Trigger some action for the video (e.g., reload the page)
+        await page.reload()
 
-            # Wait for 5 seconds to capture the page load
-            await page.wait_for_timeout(5000)
+        # Wait for 5 seconds to capture the page load
+        await page.wait_for_timeout(5000)
 
-            # Stop video recording and save the video
-            await stop_recording(page.context, video_path)
-            logger.info(
-                f"[green]Video saved[/green]: {video_path}", extra={"markup": True}
-            )
-        else:
-            logger.warning(
-                f"[yellow]Video recording already in progress for {url}[/yellow]",
-                extra={"markup": True},
-            )
+        # Stop video recording and save the video
+        await page.context.tracing.stop(path=video_path)
+        logger.info(f"[green]Video saved[/green]: {video_path}", extra={"markup": True})
     except Exception as e:
         logger.error(
             f"[bold red]Error recording video[/bold red]: {str(e)}",
@@ -84,7 +72,8 @@ async def scrape_website(page, url):
         )
 
 
-async def process_url(context, url):
+async def process_url(url):
+    playwright, browser, context = await setup_browser()
     page = await context.new_page()
     try:
         await scrape_website(page, url)
@@ -95,3 +84,6 @@ async def process_url(context, url):
         )
     finally:
         await page.close()
+        await context.close()
+        await browser.close()
+        await playwright.stop()

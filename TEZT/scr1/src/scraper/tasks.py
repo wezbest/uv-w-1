@@ -2,8 +2,8 @@
 
 import os
 import datetime
-from logger import setup_logger
-from config import GEOLOCATION, OUTPUT_DIRS
+from src.scraper.logger import setup_logger
+from src.config import GEOLOCATION, OUTPUT_DIRS
 from rich.traceback import install
 
 install(show_locals=True)

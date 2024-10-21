@@ -19,9 +19,6 @@ BROWSER_SETTINGS = {
 
 GEOLOCATION = {"latitude": -22.9068, "longitude": -43.1729}
 
-OUTPUT_DIRS = {
-    "rez": "screenshots",
-    "rez": "videos",
-}
+OUTPUT_DIRS = {"rez": {"screenshots": "screenshots", "videos": "videos"}}
 
 USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3"

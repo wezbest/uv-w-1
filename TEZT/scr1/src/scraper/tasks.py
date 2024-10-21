@@ -36,7 +36,9 @@ async def scrape_website(page, url):
 
     # Take a screenshot
     screenshot_path = os.path.join(
-        OUTPUT_DIRS["screenshots"], f"{url.split('//')}_{timestamp}.png"
+        "rez",
+        OUTPUT_DIRS["rez"]["screenshots"],
+        f"{url.split('//')[-1]}_{timestamp}.png",
     )
     await page.screenshot(path=screenshot_path, full_page=True)
     logger.info(
@@ -45,8 +47,9 @@ async def scrape_website(page, url):
 
     # Record a video
     video_path = os.path.join(
-        OUTPUT_DIRS["videos"], f"{url.split('//')}_{timestamp}.webm"
+        "rez", OUTPUT_DIRS["rez"]["videos"], f"{url.split('//')[-1]}_{timestamp}.webm"
     )
+
     try:
         await context.tracing.start(screenshots=True, snapshots=True, sources=True)
         await page.reload()  # Trigger some action for the video

@@ -7,7 +7,8 @@ import re
 from rich import print
 from rich.logging import RichHandler
 from src.scraper.browser import setup_browser
-from src.config import OUTPUT_DIRS
+from src.config import OUTPUT_DIRS, BROWSER_SETTINGS, USER_AGENT
+from playwright_stealth import stealth_async
 from rich.traceback import install
 
 install(show_locals=True)

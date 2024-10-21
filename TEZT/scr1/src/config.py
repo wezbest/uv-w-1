@@ -6,8 +6,8 @@ from rich.traceback import install
 install(show_locals=True)
 
 URLS = [
-    "https://openlibrary.org/",
-    "https://www.gutenberg.org/",
+    "https://nhentai.net/",
+    "https://www.ehentai.com/",
     # Add more URLs here
 ]
 

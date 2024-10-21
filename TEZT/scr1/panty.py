@@ -14,8 +14,12 @@ install(show_locals=True)
 async def main():
     logger = setup_logger()
 
-    for directory in OUTPUT_DIRS.values():
-        os.makedirs(directory, exist_ok=True)
+    # for directory in OUTPUT_DIRS.values():
+    #     os.makedirs(directory, exist_ok=True)
+
+    for dir_name, sub_dirs in OUTPUT_DIRS.items():
+        for sub_dir_path in sub_dirs.values():
+            os.makedirs(os.path.join(dir_name, sub_dir_path), exist_ok=True)
 
     playwright, browser, context = await setup_browser()
 

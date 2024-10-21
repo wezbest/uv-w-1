@@ -1,6 +1,7 @@
 import os
 import datetime
 import logging
+import re
 from rich import print
 from rich.logging import RichHandler
 from src.scraper.browser import start_recording, stop_recording
@@ -35,11 +36,14 @@ async def scrape_website(page, url):
     # Get the current date and time
     timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 
+    # Remove special characters from the URL for the filename
+    filename_safe_url = re.sub(r"\W+", "_", url.split("//")[-1])
+
     # Take a screenshot
     screenshot_path = os.path.join(
         "rez",
         OUTPUT_DIRS["rez"]["screenshots"],
-        f"{url.split('//')[-1]}_{timestamp}.png",
+        f"{filename_safe_url}_{timestamp}.png",
     )
     await page.screenshot(path=screenshot_path, full_page=True)
     logger.info(
@@ -48,15 +52,31 @@ async def scrape_website(page, url):
 
     # Record a video
     video_path = os.path.join(
-        "rez", OUTPUT_DIRS["rez"]["videos"], f"{url.split('//')[-1]}_{timestamp}.webm"
+        "rez", OUTPUT_DIRS["rez"]["videos"], f"{filename_safe_url}_{timestamp}.webm"
     )
 
     try:
-        await start_recording(page.context)
-        await page.reload()  # Trigger some action for the video
-        await page.wait_for_timeout(5000)  # Wait for 5 seconds to capture the page load
-        await stop_recording(page.context, video_path)
-        logger.info(f"[green]Video saved[/green]: {video_path}", extra={"markup": True})
+        # Check if recording is already in progress
+        if not context.is_recording():
+            # Start video recording
+            await start_recording(page.context)
+
+            # Trigger some action for the video (e.g., reload the page)
+            await page.reload()
+
+            # Wait for 5 seconds to capture the page load
+            await page.wait_for_timeout(5000)
+
+            # Stop video recording and save the video
+            await stop_recording(page.context, video_path)
+            logger.info(
+                f"[green]Video saved[/green]: {video_path}", extra={"markup": True}
+            )
+        else:
+            logger.warning(
+                f"[yellow]Video recording already in progress for {url}[/yellow]",
+                extra={"markup": True},
+            )
     except Exception as e:
         logger.error(
             f"[bold red]Error recording video[/bold red]: {str(e)}",

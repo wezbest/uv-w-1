@@ -3,24 +3,33 @@ import datetime
 import logging
 from rich import print
 from rich.logging import RichHandler
-from src.config import GEOLOCATION, OUTPUT_DIRS, USER_AGENT
 from rich.traceback import install
+from playwright.async_api import async_playwright
+from playwright_stealth import stealth_async
 
+# Install rich traceback
 install(show_locals=True)
 
+# Logger setup with Rich for colored output
 def setup_logger():
-    logger = logging.getLogger()
+    logger = logging.getLogger("scraper")
     logger.setLevel(logging.INFO)
-    handler = RichHandler()
+    handler = RichHandler(rich_tracebacks=True)
+    formatter = logging.Formatter("%(message)s")  # You can customize the format if needed
+    handler.setFormatter(formatter)
     logger.addHandler(handler)
     return logger
 
 logger = setup_logger()
 
+# Scraping function with user agent, geolocation, and stealth mode
 async def scrape_website(page, url):
     logger.info(f"[bold blue1]Scraping[/bold blue1]: {url}")
 
-    # Set user agent
+    # Apply stealth to avoid detection
+    await stealth_async(page)
+
+    # Set user agent correctly from config
     await page.set_user_agent(USER_AGENT)
 
     # Navigate to the URL
@@ -36,14 +45,14 @@ async def scrape_website(page, url):
 
     # Take a screenshot
     screenshot_path = os.path.join(
-        OUTPUT_DIRS["screenshots"], f"{url.split('//')}_{timestamp}.png"
+        OUTPUT_DIRS["screenshots"], f"{url.split('//')[-1]}_{timestamp}.png"
     )
     await page.screenshot(path=screenshot_path, full_page=True)
     logger.info(f"[green]Screenshot saved[/green]: {screenshot_path}")
 
     # Record a video
     video_path = os.path.join(
-        OUTPUT_DIRS["videos"], f"{url.split('//')}_{timestamp}.webm"
+        OUTPUT_DIRS["videos"], f"{url.split('//')[-1]}_{timestamp}.webm"
     )
     try:
         await context.tracing.start(screenshots=True, snapshots=True, sources=True)
@@ -53,6 +62,7 @@ async def scrape_website(page, url):
     except Exception as e:
         logger.error(f"[bold red]Error recording video[/bold red]: {str(e)}")
 
+# Processing URLs asynchronously
 async def process_url(context, url):
     page = await context.new_page()
     try:
@@ -61,3 +71,12 @@ async def process_url(context, url):
         logger.error(f"[bold red]Error scraping[/bold red] {url}: {str(e)}")
     finally:
         await page.close()
+
+# Example of running with Playwright
+async def main():
+    async with async_playwright() as p:
+        browser = await p.chromium.launch(headless=False)
+        context = await browser.new_context()
+        # Example URL for testing
+        await process_url(context, "https://example.com")
+        await browser.close()

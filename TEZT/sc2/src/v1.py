@@ -66,7 +66,7 @@ async def scrape_github(repo: str, issue_url: str, pr_url: str) -> None:
     pr_url (str): The URL of the GitHub PRs page.
     """
     async with async_playwright() as p:
-        browser = await p.chromium.launch(headless=False)
+        browser = await p.chromium.launch(headless=True)
         context = await browser.newContext()
         page = await context.newPage()
 

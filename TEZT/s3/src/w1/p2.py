@@ -150,21 +150,21 @@ async def sniff():
             user_agent=user_agent, viewport={"width": 1280, "height": 720}
         )
 
+        # Apply stealthy modifications to the context before pages are opened
+        await context.add_init_script(
+            """
+            () => {
+                Object.defineProperty(navigator, 'webdriver', { get: () => false });
+                Object.defineProperty(navigator, 'languages', { get: () => ['en-US', 'en'] });
+                Object.defineProperty(navigator, 'platform', { get: () => 'Win32' });
+            }
+            """
+        )
+
         for issue_url, pr_url in track(
             urls, description="[green]Scraping repositories...[/green]"
         ):
             page = await context.new_page()
-
-            # Modify navigator properties to avoid detection
-            await page.evaluate_on_new_document(
-                """
-                () => {
-                    Object.defineProperty(navigator, 'webdriver', { get: () => false });
-                    Object.defineProperty(navigator, 'languages', { get: () => ['en-US', 'en'] });
-                    Object.defineProperty(navigator, 'platform', { get: () => 'Win32' });
-                }
-                """
-            )
 
             await scrape_github_issues_and_prs(issue_url, pr_url, page)
 

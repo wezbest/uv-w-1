@@ -113,7 +113,3 @@ async def main() -> None:
             f"[bold green]Finished scraping {repo}.[/bold green]",
             extra={"markup": True},
         )
-
-
-if __name__ == "__main__":
-    asyncio.run(main())

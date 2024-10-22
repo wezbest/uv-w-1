@@ -6,25 +6,24 @@ import logging
 from typing import List
 
 from rich.logging import RichHandler
-from rich import print
 from rich.console import Console
 from rich.progress import track
 
 from playwright.async_api import async_playwright, Page
 
-# Setting up rich logger with color support
+# Setting up rich logger with color
 logging.basicConfig(
     level=logging.INFO,
     format="%(message)s",
     datefmt="[%X]",
-    handlers=[RichHandler(rich_tracebacks=True, markup=True)],
+    handlers=[RichHandler(rich_tracebacks=True)],
 )
 log = logging.getLogger("rich")
 console = Console()
 
 
 # Create a 'reports' folder if it doesn't exist
-def ensure_reports_folder():
+def ensure_reports_folder() -> str:
     reports_folder = "reports"
     if not os.path.exists(reports_folder):
         os.makedirs(reports_folder)
@@ -57,20 +56,16 @@ async def take_screenshot(page: Page, website_name: str) -> None:
     log.info(f"[cyan]Screenshot saved at {screenshot_path}[/cyan]")
 
 
-# Function to store data as JSON and text files
+# Function to store data as JSON and text file
 def store_results_as_files(repo_name: str, issues: List[str], prs: List[str]) -> None:
     """
-    Stores the scraped issue titles and PR titles in both a JSON and text file in the reports folder.
-    :param repo_name: The name of the GitHub repository.
-    :param issues: List of issue titles.
-    :param prs: List of PR titles.
+    Stores the scraped issues and PRs in both a JSON and text file in the reports folder.
     """
     reports_folder = ensure_reports_folder()
     timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
     json_path = os.path.join(reports_folder, f"{repo_name}_results_{timestamp}.json")
     text_path = os.path.join(reports_folder, f"{repo_name}_results_{timestamp}.txt")
 
-    # Debugging logs to check if issues/PRs were scraped correctly
     if not issues and not prs:
         log.warning(f"[red]No issues or PRs found for {repo_name}[/red]")
 
@@ -96,25 +91,20 @@ def store_results_as_files(repo_name: str, issues: List[str], prs: List[str]) ->
         log.info(f"[cyan]Results saved as text at {text_path}[/cyan]")
 
 
-# Function to scrape issues and PRs
+# Function to scrape issues and PRs from GitHub repository
 async def scrape_github_issues_and_prs(
     repo_name: str, repo_url: str, pr_url: str, page: Page
 ) -> None:
-    """
-    Scrapes the first page of issue and pull request titles from a GitHub repository.
-    :param repo_name: GitHub repository name.
-    :param repo_url: GitHub issues URL.
-    :param pr_url: GitHub pull requests URL.
-    :param page: The Playwright page instance.
-    """
     log.info(f"[yellow]Scraping issues from {repo_url}...[/yellow]")
     await page.goto(repo_url)
-    await page.wait_for_selector(".js-issue-row")  # Ensure the page is fully loaded
+    await page.wait_for_selector(
+        ".js-navigation-container"
+    )  # Ensure the page is fully loaded
 
     # Scraping issue titles
     issues = await page.evaluate("""
         () => {
-            return [...document.querySelectorAll('.js-issue-row .h4 a')].map(e => e.textContent.trim());
+            return [...document.querySelectorAll('.js-navigation-item .Link--primary')].map(e => e.textContent.trim());
         }
     """)
 
@@ -123,12 +113,14 @@ async def scrape_github_issues_and_prs(
 
     log.info(f"[yellow]Scraping PRs from {pr_url}...[/yellow]")
     await page.goto(pr_url)
-    await page.wait_for_selector(".js-issue-row")  # Ensure the page is fully loaded
+    await page.wait_for_selector(
+        ".js-navigation-container"
+    )  # Ensure the page is fully loaded
 
     # Scraping PR titles
     prs = await page.evaluate("""
         () => {
-            return [...document.querySelectorAll('.js-issue-row .h4 a')].map(e => e.textContent.trim());
+            return [...document.querySelectorAll('.js-navigation-item .Link--primary')].map(e => e.textContent.trim());
         }
     """)
 
@@ -176,7 +168,7 @@ async def sniff():
             user_agent=user_agent, viewport={"width": 1280, "height": 720}
         )
 
-        # Apply stealthy modifications to avoid detection
+        # Stealthy modifications to avoid detection
         await context.add_init_script("""
             () => {
                 Object.defineProperty(navigator, 'webdriver', { get: () => false });
@@ -190,6 +182,9 @@ async def sniff():
             zip(repo_names, urls), description="[green]Scraping repositories...[/green]"
         ):
             page = await context.new_page()
-            await scrape_github_issues_and_prs(repo_name, issue_url, pr_url, page)
+            try:
+                await scrape_github_issues_and_prs(repo_name, issue_url, pr_url, page)
+            except Exception as e:
+                log.error(f"[red]Failed to scrape {repo_name}: {str(e)}[/red]")
 
         await browser.close()

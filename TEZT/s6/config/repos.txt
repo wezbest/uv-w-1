@@ -1,0 +1,3 @@
+microsoft/vscode
+panty/sniff
+astral-sh/uv

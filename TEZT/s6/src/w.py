@@ -150,8 +150,6 @@ def read_repo_names(file_path: str) -> List[str]:
 
 
 # List contents of reports directory
-
-
 def list_reports_directory():
     reports_folder = "reports"
     if not os.path.exists(reports_folder):
@@ -161,43 +159,47 @@ def list_reports_directory():
     # Create main tree
     tree = Tree("[bold magenta]📁 reports", guide_style="cyan")
 
-    # Group files by repository
-    repo_files = {}
-    for file in os.listdir(reports_folder):
-        repo_name = os.path.dirname(file) or file.split("_")[0]
-        if repo_name not in repo_files:
-            repo_files[repo_name] = []
-        repo_files[repo_name].append(file)
+    # Get all subdirectories and files
+    for repo_dir in os.listdir(reports_folder):
+        repo_path = os.path.join(reports_folder, repo_dir)
+        if os.path.isdir(repo_path):
+            repo_branch = tree.add(f"[bold blue]📁 {repo_dir}")
 
-    # Add repository branches
-    for repo, files in sorted(repo_files.items()):
-        repo_branch = tree.add(f"[bold blue]📁 {repo}")
+            # List all files in the repository directory
+            files = os.listdir(repo_path)
+            for file in sorted(files):
+                file_path = os.path.join(repo_path, file)
+                size = os.path.getsize(file_path) / 1024  # KB
 
-        # Group files by type
-        screenshots = sorted([f for f in files if "screenshot" in f])
-        results = sorted([f for f in files if "results" in f])
-
-        # Add files with size info
-        for file in screenshots:
-            file_path = os.path.join(reports_folder, file)
-            size = os.path.getsize(file_path) / 1024  # KB
-            repo_branch.add(f"[green]📸 {file}[/green] ([cyan]{size:.1f} KB[/cyan])")
-
-        for file in results:
-            file_path = os.path.join(reports_folder, file)
-            size = os.path.getsize(file_path) / 1024  # KB
-            icon = "📄" if file.endswith(".txt") else "📊"
-            repo_branch.add(
-                f"[yellow]{icon} {file}[/yellow] ([cyan]{size:.1f} KB[/cyan])"
-            )
+                if "screenshot" in file:
+                    repo_branch.add(
+                        f"[green]📸 {file}[/green] ([cyan]{size:.1f} KB[/cyan])"
+                    )
+                elif file.endswith(".json"):
+                    repo_branch.add(
+                        f"[yellow]📊 {file}[/yellow] ([cyan]{size:.1f} KB[/cyan])"
+                    )
+                elif file.endswith(".txt"):
+                    repo_branch.add(
+                        f"[yellow]📄 {file}[/yellow] ([cyan]{size:.1f} KB[/cyan])"
+                    )
+                else:
+                    repo_branch.add(
+                        f"[white]📄 {file}[/white] ([cyan]{size:.1f} KB[/cyan])"
+                    )
 
     console.print("\n[bold cyan]Generated Reports:[/bold cyan]")
     console.rule(style="cyan")
     console.print(tree)
     console.rule(style="cyan")
-    console.print(
-        f"[bold green]Total files: {sum(len(files) for files in repo_files.values())}[/bold green]\n"
+
+    # Count total files
+    total_files = sum(
+        len(os.listdir(os.path.join(reports_folder, d)))
+        for d in os.listdir(reports_folder)
+        if os.path.isdir(os.path.join(reports_folder, d))
     )
+    console.print(f"[bold green]Total files: {total_files}[/bold green]\n")
 
 
 # Main function orchestrating the scraping

@@ -1,2 +1,3 @@
 foundry-rs/foundry
 Cyfrin/aderyn
+panty/smell

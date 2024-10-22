@@ -137,7 +137,9 @@ def read_repo_names(file_path: str) -> List[str]:
         log.error(
             f"[red]Repository file is either empty or does not exist: {file_path}[/red]"
         )
-        raise FileNotFoundError("Repository file is empty or missing.")
+        # raise FileNotFoundError("Repository file is empty or missing.")
+        raise SystemExit()
+
     with open(file_path, "r") as file:
         repos = [line.strip() for line in file if line.strip()]
         log.info(f"[green]Read {len(repos)} repositories from {file_path}[/green]")

@@ -1,6 +1,5 @@
 import os
 import asyncio
-import time
 import json
 from datetime import datetime
 import logging
@@ -11,7 +10,7 @@ from rich import print
 from rich.console import Console
 from rich.progress import track
 
-from playwright.async_api import async_playwright, Page  # Standard Playwright
+from playwright.async_api import async_playwright, Page
 
 # Setting up rich logger
 logging.basicConfig(
@@ -23,9 +22,6 @@ console = Console()
 
 # Create a 'reports' folder if it doesn't exist
 def ensure_reports_folder():
-    """
-    Ensures that the 'reports' folder exists. If it doesn't, it creates it.
-    """
     reports_folder = "reports"
     if not os.path.exists(reports_folder):
         os.makedirs(reports_folder)
@@ -33,32 +29,8 @@ def ensure_reports_folder():
     return reports_folder
 
 
-# Function to convert repo names to URLs
-def convert_to_github_urls(repo_names: List[str]) -> List[str]:
-    """
-    Converts repository names to GitHub URLs for issues and pull requests.
-    :param repo_names: List of repo names in the form 'username/repo'.
-    :return: List of URLs.
-    """
-    log.info("[yellow]Converting repo names to GitHub URLs...[/yellow]")
-    urls = []
-    for repo in repo_names:
-        issue_url = f"https://github.com/{repo}/issues"
-        pr_url = f"https://github.com/{repo}/pulls"
-        urls.append((issue_url, pr_url))
-        log.info(
-            f"[cyan]Converted {repo} to Issues URL: {issue_url} and PRs URL: {pr_url}[/cyan]"
-        )
-    return urls
-
-
 # Function to read user-agent from file or use default
 def get_user_agent(file_path: str) -> str:
-    """
-    Retrieves the user-agent from the specified file, if it exists. Otherwise, defaults to Linux Android user-agent.
-    :param file_path: Path to the user-agent file.
-    :return: The user-agent string.
-    """
     if os.path.exists(file_path):
         log.info(f"[green]User-agent file found: {file_path}[/green]")
         with open(file_path, "r") as file:
@@ -73,11 +45,6 @@ def get_user_agent(file_path: str) -> str:
 
 # Function to take a screenshot and store it in the reports folder
 async def take_screenshot(page: Page, website_name: str) -> None:
-    """
-    Takes a screenshot of the current page and saves it in the 'reports' folder.
-    :param page: The Playwright page instance.
-    :param website_name: The name of the website being scraped.
-    """
     reports_folder = ensure_reports_folder()
     timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
     screenshot_path = os.path.join(
@@ -89,12 +56,6 @@ async def take_screenshot(page: Page, website_name: str) -> None:
 
 # Function to store data as JSON and text file
 def store_results_as_files(repo_name: str, issues: List[str], prs: List[str]) -> None:
-    """
-    Stores the scraped issues and PRs in both a JSON and text file in the reports folder.
-    :param repo_name: The name of the GitHub repository.
-    :param issues: List of issues.
-    :param prs: List of pull requests.
-    """
     reports_folder = ensure_reports_folder()
     timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
     json_path = os.path.join(reports_folder, f"{repo_name}_results_{timestamp}.json")
@@ -113,69 +74,51 @@ def store_results_as_files(repo_name: str, issues: List[str], prs: List[str]) ->
 
 
 # Function to scrape issues and PRs
-# Function to scrape issues and PRs
 async def scrape_github_issues_and_prs(
     repo_name: str, repo_url: str, pr_url: str, page: Page
 ) -> None:
-    """
-    Scrapes the first page of issues and pull requests from a GitHub repository.
-    :param repo_name: GitHub repository name.
-    :param repo_url: GitHub issues URL.
-    :param pr_url: GitHub pull requests URL.
-    :param page: The Playwright page instance.
-    """
+    # Scrape Issues
     log.info(f"[yellow]Scraping issues from {repo_url}...[/yellow]")
     await page.goto(repo_url)
+    await page.wait_for_selector(".js-issue-row")  # Ensures page is fully loaded
 
-    # Wait for the issues page to load
-    await page.wait_for_selector(".js-issue-row")
-
-    # Extract issue titles from the issues page
-    issues = await page.evaluate("""() => {
-        return [...document.querySelectorAll('.js-issue-row .h4 a')].map(e => e.textContent.trim());
-    }""")
-
-    log.info(f"Found {len(issues)} issues for {repo_name}")
+    issues = await page.evaluate("""
+        () => {
+            return [...document.querySelectorAll('.js-issue-row .h4 a')].map(e => e.textContent.trim());
+        }
+    """)
     await take_screenshot(page, f"{repo_name}_issues")
 
+    # Scrape Pull Requests
     log.info(f"[yellow]Scraping PRs from {pr_url}...[/yellow]")
     await page.goto(pr_url)
+    await page.wait_for_selector(".js-issue-row")  # Ensures page is fully loaded
 
-    # Wait for the PRs page to load
-    await page.wait_for_selector(".js-issue-row")
-
-    # Extract PR titles from the PRs page
-    prs = await page.evaluate("""() => {
-        return [...document.querySelectorAll('.js-issue-row .h4 a')].map(e => e.textContent.trim());
-    }""")
-
-    log.info(f"Found {len(prs)} pull requests for {repo_name}")
+    prs = await page.evaluate("""
+        () => {
+            return [...document.querySelectorAll('.js-issue-row .h4 a')].map(e => e.textContent.trim());
+        }
+    """)
     await take_screenshot(page, f"{repo_name}_prs")
 
-    # Store results in JSON and text files
+    # Store results in files
     store_results_as_files(repo_name, issues, prs)
 
 
 # Function to read repo names from the file
 def read_repo_names(file_path: str) -> List[str]:
-    """
-    Reads the repository names from the given text file.
-    :param file_path: Path to the text file containing repo names.
-    :return: List of repo names.
-    """
     if not os.path.exists(file_path) or os.stat(file_path).st_size == 0:
         log.error(
             f"[red]Repository file is either empty or does not exist: {file_path}[/red]"
         )
         raise FileNotFoundError("Repository file is empty or missing.")
-
     with open(file_path, "r") as file:
         repos = [line.strip() for line in file if line.strip()]
         log.info(f"[green]Read {len(repos)} repositories from {file_path}[/green]")
         return repos
 
 
-# The main function that orchestrates the scraping
+# Main function orchestrating the scraping
 async def sniff():
     repo_file = "config/repos.txt"
     user_agent_file = "config/useragent.txt"
@@ -184,7 +127,10 @@ async def sniff():
     repo_names = read_repo_names(repo_file)
 
     # Convert repository names to GitHub URLs
-    urls = convert_to_github_urls(repo_names)
+    urls = [
+        (f"https://github.com/{repo}/issues", f"https://github.com/{repo}/pulls")
+        for repo in repo_names
+    ]
 
     # Get the user agent string
     user_agent = get_user_agent(user_agent_file)
@@ -196,17 +142,16 @@ async def sniff():
             user_agent=user_agent, viewport={"width": 1280, "height": 720}
         )
 
-        # Apply stealthy modifications to the context before pages are opened
-        await context.add_init_script(
-            """
+        # Apply stealthy modifications to avoid detection
+        await context.add_init_script("""
             () => {
                 Object.defineProperty(navigator, 'webdriver', { get: () => false });
                 Object.defineProperty(navigator, 'languages', { get: () => ['en-US', 'en'] });
                 Object.defineProperty(navigator, 'platform', { get: () => 'Win32' });
             }
-            """
-        )
+        """)
 
+        # Loop through the repositories and scrape issues and PRs
         for repo_name, (issue_url, pr_url) in track(
             zip(repo_names, urls), description="[green]Scraping repositories...[/green]"
         ):

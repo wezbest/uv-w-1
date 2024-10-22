@@ -15,4 +15,4 @@ dependencies = [
 ]
 
 [tool.uv.workspace]
-members = ["src/s3"]
+members = ["src/s3", "src/w2/s3"]

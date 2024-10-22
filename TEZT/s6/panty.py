@@ -13,7 +13,7 @@ console = Console()
 def main():
     pussy()
     asyncio.run(sniff())
-    console.rule("[bright green] DONE [/bright green]", style="green")
+    console.rule(f"[green]DONE[/green]", style="green")
 
 
 if __name__ == "__main__":

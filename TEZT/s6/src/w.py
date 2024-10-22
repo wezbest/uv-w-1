@@ -152,7 +152,7 @@ def read_repo_names(file_path: str) -> List[str]:
 async def sniff():
     rprint(
         Panel(
-            """Scraping 1st page of Issues and Prs""",
+            """Scraping 1st page of Issues and Prs, may not work with older repos""",
             title="[#87ff00][italic]Github Issues and Prs Scraper",
             border_style="#d700d7",
         )

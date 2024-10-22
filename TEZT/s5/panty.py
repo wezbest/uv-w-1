@@ -1,6 +1,6 @@
 from rich.traceback import install
 from src.p1 import pussy
-from src.w2.p2 import sniff
+from src.w2.p3 import sniff
 import asyncio
 
 install(show_locals=True)

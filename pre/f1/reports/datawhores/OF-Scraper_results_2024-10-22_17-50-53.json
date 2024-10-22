@@ -1,0 +1,21 @@
+{
+    "issues": [
+        "[3.12.9] \"add link and linked to media object\"",
+        "\"Too many open files\" error crashing scraper",
+        "Auth Fail even after updating auth.Json file multiple times",
+        "# always fail in \"Progress\"",
+        "# Number of timeline posts  marked as missing/undownloaded",
+        "OF Scraper CMD fix request",
+        "add binance on the donation",
+        "MORE FOLDERS DIFFERENT FROM \"ARCHIVED\"",
+        "Not scraping images or messages",
+        "# ModuleNotFoundError: No Module name 'pkg_resources.extern'",
+        "Post User Process not running consistently",
+        "auth issue",
+        "Cleaning temp files",
+        "Error \"Broken pipe\" while scraping"
+    ],
+    "prs": [
+        "Allow docker image to be multiarchitecture"
+    ]
+}

@@ -5,6 +5,8 @@ from datetime import datetime
 import logging
 from typing import List
 
+from rich import print as rprint
+from rich.panel import Panel
 from rich.logging import RichHandler
 from rich.console import Console
 from rich.progress import track
@@ -148,6 +150,14 @@ def read_repo_names(file_path: str) -> List[str]:
 
 # Main function orchestrating the scraping
 async def sniff():
+    rprint(
+        Panel(
+            """Scraping 1st page of Issues and Prs""",
+            title="[#87ff00][italic]Github Issues and Prs Scraper",
+            border_style="#d700d7",
+        )
+    )
+
     repo_file = "config/repos.txt"
     user_agent_file = "config/useragent.txt"
 

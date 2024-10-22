@@ -18,7 +18,7 @@ b2() {
     echo -e "-----------------------------------------------"
     echo -e "  Shell script to setup the following "
     echo -e "${GREEN}  uv add typer asyncio rich requests pytest-playwright  ${NC}"
-    echo -e "${GREEN}  uvx playwright install --with-deps --quiet  ${NC}"
+    echo -e "${GREEN}  uvx playwright install --with-deps ${NC}"
     echo -e "-----------------------------------------------"
 }
 

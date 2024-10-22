@@ -1,5 +1,16 @@
+from rich.traceback import install
+import asyncio
+from src.b import pussy
+from src.w import sniff
+
+install(show_locals=True)
+
+### Code ###
+
+
 def main():
-    print("Hello from s6!")
+    pussy()
+    sniff()
 
 
 if __name__ == "__main__":

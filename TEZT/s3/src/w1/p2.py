@@ -11,7 +11,6 @@ from rich.console import Console
 from rich.progress import track
 
 from playwright.async_api import async_playwright, Page  # Standard Playwright
-import undetected_playwright as stealth  # Stealth patches from undetected-playwright
 
 # Setting up rich logger
 logging.basicConfig(
@@ -144,8 +143,8 @@ async def sniff():
     # Get the user agent string
     user_agent = get_user_agent(user_agent_file)
 
-    # Launch Playwright with stealth mode patches from undetected_playwright
-    async with async_playwright() as p:  # Correct usage of async_playwright
+    # Launch Playwright in headless mode
+    async with async_playwright() as p:
         browser = await p.chromium.launch(headless=True)
         context = await browser.new_context(
             user_agent=user_agent, viewport={"width": 1280, "height": 720}
@@ -156,8 +155,16 @@ async def sniff():
         ):
             page = await context.new_page()
 
-            # Apply stealth patches using undetected_playwright's stealth functionality
-            stealth.apply_stealth(page)  # Correctly apply stealth to avoid detection
+            # Modify navigator properties to avoid detection
+            await page.evaluate_on_new_document(
+                """
+                () => {
+                    Object.defineProperty(navigator, 'webdriver', { get: () => false });
+                    Object.defineProperty(navigator, 'languages', { get: () => ['en-US', 'en'] });
+                    Object.defineProperty(navigator, 'platform', { get: () => 'Win32' });
+                }
+                """
+            )
 
             await scrape_github_issues_and_prs(issue_url, pr_url, page)
 

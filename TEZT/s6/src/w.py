@@ -10,6 +10,7 @@ from rich.panel import Panel
 from rich.logging import RichHandler
 from rich.console import Console
 from rich.progress import track
+from rich.tree import Tree
 
 from playwright.async_api import async_playwright, Page
 
@@ -148,6 +149,57 @@ def read_repo_names(file_path: str) -> List[str]:
         return repos
 
 
+# List contents of reports directory
+
+
+def list_reports_directory():
+    reports_folder = "reports"
+    if not os.path.exists(reports_folder):
+        log.warning("[yellow]No reports directory found[/yellow]")
+        return
+
+    # Create main tree
+    tree = Tree("[bold magenta]📁 reports", guide_style="cyan")
+
+    # Group files by repository
+    repo_files = {}
+    for file in os.listdir(reports_folder):
+        repo_name = os.path.dirname(file) or file.split("_")[0]
+        if repo_name not in repo_files:
+            repo_files[repo_name] = []
+        repo_files[repo_name].append(file)
+
+    # Add repository branches
+    for repo, files in sorted(repo_files.items()):
+        repo_branch = tree.add(f"[bold blue]📁 {repo}")
+
+        # Group files by type
+        screenshots = sorted([f for f in files if "screenshot" in f])
+        results = sorted([f for f in files if "results" in f])
+
+        # Add files with size info
+        for file in screenshots:
+            file_path = os.path.join(reports_folder, file)
+            size = os.path.getsize(file_path) / 1024  # KB
+            repo_branch.add(f"[green]📸 {file}[/green] ([cyan]{size:.1f} KB[/cyan])")
+
+        for file in results:
+            file_path = os.path.join(reports_folder, file)
+            size = os.path.getsize(file_path) / 1024  # KB
+            icon = "📄" if file.endswith(".txt") else "📊"
+            repo_branch.add(
+                f"[yellow]{icon} {file}[/yellow] ([cyan]{size:.1f} KB[/cyan])"
+            )
+
+    console.print("\n[bold cyan]Generated Reports:[/bold cyan]")
+    console.rule(style="cyan")
+    console.print(tree)
+    console.rule(style="cyan")
+    console.print(
+        f"[bold green]Total files: {sum(len(files) for files in repo_files.values())}[/bold green]\n"
+    )
+
+
 # Main function orchestrating the scraping
 async def sniff():
     rprint(
@@ -207,3 +259,5 @@ async def sniff():
                 console.rule(f"[red]{repo_name} scrape failed[/red]", style="red")
 
         await browser.close()
+    console.print()  # Add a blank line for spacing
+    list_reports_directory()

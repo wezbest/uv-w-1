@@ -10,7 +10,7 @@ install(show_locals=True)
 
 def main():
     pussy()
-    sniff()
+    asyncio.run(sniff())
 
 
 if __name__ == "__main__":

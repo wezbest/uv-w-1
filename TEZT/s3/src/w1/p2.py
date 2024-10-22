@@ -10,7 +10,7 @@ from rich import print
 from rich.console import Console
 from rich.progress import track
 
-from playwright.async_api import async_playwright  # Standard Playwright
+from playwright.async_api import async_playwright, Page  # Standard Playwright
 import undetected_playwright as stealth  # Stealth patches from undetected-playwright
 
 # Setting up rich logger

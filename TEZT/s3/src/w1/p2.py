@@ -146,7 +146,7 @@ async def sniff():
 
     # Launch Playwright with stealth mode patches from undetected_playwright
     async with async_playwright() as p:  # Correct usage of async_playwright
-        browser = await p.chromium.launch(headless=False)
+        browser = await p.chromium.launch(headless=True)
         context = await browser.new_context(
             user_agent=user_agent, viewport={"width": 1280, "height": 720}
         )

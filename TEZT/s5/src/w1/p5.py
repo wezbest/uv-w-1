@@ -55,11 +55,22 @@ async def take_screenshot(page: Page, website_name: str) -> None:
 
 
 # Function to store data as JSON and text file
+# Function to store data as JSON and text file
 def store_results_as_files(repo_name: str, issues: List[str], prs: List[str]) -> None:
+    """
+    Stores the scraped issues and PRs in both a JSON and text file in the reports folder.
+    :param repo_name: The name of the GitHub repository.
+    :param issues: List of issues.
+    :param prs: List of pull requests.
+    """
     reports_folder = ensure_reports_folder()
     timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
     json_path = os.path.join(reports_folder, f"{repo_name}_results_{timestamp}.json")
     text_path = os.path.join(reports_folder, f"{repo_name}_results_{timestamp}.txt")
+
+    # Debugging logs to check if issues/PRs were scraped correctly
+    if not issues and not prs:
+        log.warning(f"[red]No issues or PRs found for {repo_name}[/red]")
 
     # Save results as JSON
     with open(json_path, "w") as json_file:
@@ -68,8 +79,18 @@ def store_results_as_files(repo_name: str, issues: List[str], prs: List[str]) ->
 
     # Save results as text
     with open(text_path, "w") as text_file:
-        text_file.write("Issues:\n" + "\n".join(issues) + "\n\n")
-        text_file.write("Pull Requests:\n" + "\n".join(prs) + "\n")
+        text_file.write("Issues:\n")
+        if issues:
+            text_file.write("\n".join(issues) + "\n")
+        else:
+            text_file.write("No issues found.\n")
+
+        text_file.write("\nPull Requests:\n")
+        if prs:
+            text_file.write("\n".join(prs) + "\n")
+        else:
+            text_file.write("No pull requests found.\n")
+
         log.info(f"[cyan]Results saved as text at {text_path}[/cyan]")
 
 
@@ -77,28 +98,39 @@ def store_results_as_files(repo_name: str, issues: List[str], prs: List[str]) ->
 async def scrape_github_issues_and_prs(
     repo_name: str, repo_url: str, pr_url: str, page: Page
 ) -> None:
-    # Scrape Issues
+    """
+    Scrapes the first page of issues and pull requests from a GitHub repository.
+    :param repo_name: GitHub repository name.
+    :param repo_url: GitHub issues URL.
+    :param pr_url: GitHub pull requests URL.
+    :param page: The Playwright page instance.
+    """
     log.info(f"[yellow]Scraping issues from {repo_url}...[/yellow]")
     await page.goto(repo_url)
-    await page.wait_for_selector(".js-issue-row")  # Ensures page is fully loaded
+    await page.wait_for_selector(".js-issue-row")  # Ensure the page is fully loaded
 
+    # Scraping issue titles
     issues = await page.evaluate("""
         () => {
             return [...document.querySelectorAll('.js-issue-row .h4 a')].map(e => e.textContent.trim());
         }
     """)
+
+    log.info(f"[cyan]Scraped {len(issues)} issues for {repo_name}[/cyan]")
     await take_screenshot(page, f"{repo_name}_issues")
 
-    # Scrape Pull Requests
     log.info(f"[yellow]Scraping PRs from {pr_url}...[/yellow]")
     await page.goto(pr_url)
-    await page.wait_for_selector(".js-issue-row")  # Ensures page is fully loaded
+    await page.wait_for_selector(".js-issue-row")  # Ensure the page is fully loaded
 
+    # Scraping PR titles
     prs = await page.evaluate("""
         () => {
             return [...document.querySelectorAll('.js-issue-row .h4 a')].map(e => e.textContent.trim());
         }
     """)
+
+    log.info(f"[cyan]Scraped {len(prs)} PRs for {repo_name}[/cyan]")
     await take_screenshot(page, f"{repo_name}_prs")
 
     # Store results in files

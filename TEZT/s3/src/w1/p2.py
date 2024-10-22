@@ -8,12 +8,11 @@ import logging
 from rich.logging import RichHandler
 from rich import print
 from rich.console import Console
-from rich.markup import escape
 from rich.progress import track
 from typing import List
 
-from undetected_playwright import stealth_sync
-from playwright.async_api import async_playwright, Page
+import undetected_playwright as stealth_playwright  # Using undetected-playwright for stealth mode
+from playwright.async_api import Page
 
 # Setting up rich logger
 logging.basicConfig(
@@ -147,7 +146,8 @@ async def sniff():
     user_agent = get_user_agent(user_agent_file)
 
     # Launch Playwright with stealth mode (undetected)
-    async with async_playwright() as p:
+    playwright = stealth_playwright.Playwright()
+    async with playwright.start() as p:
         browser = await p.chromium.launch(headless=False)
         context = await browser.new_context(
             user_agent=user_agent, viewport={"width": 1280, "height": 720}

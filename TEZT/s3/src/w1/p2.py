@@ -2,16 +2,15 @@ import os
 import asyncio
 import time
 from datetime import datetime
-from pathlib import Path
 import logging
+from typing import List
 
 from rich.logging import RichHandler
 from rich import print
 from rich.console import Console
 from rich.progress import track
-from typing import List
 
-import undetected_playwright as stealth_playwright  # Using undetected-playwright for stealth mode
+import undetected_playwright  # Correct use of undetected-playwright
 from playwright.async_api import Page
 
 # Setting up rich logger
@@ -133,8 +132,8 @@ def read_repo_names(file_path: str) -> List[str]:
 
 # The main function that orchestrates the scraping
 async def sniff():
-    repo_file = "repos.txt"
-    user_agent_file = "useragent.txt"
+    repo_file = "config/repos.txt"
+    user_agent_file = "config/useragent.txt"
 
     # Read repository names
     repo_names = read_repo_names(repo_file)
@@ -145,9 +144,8 @@ async def sniff():
     # Get the user agent string
     user_agent = get_user_agent(user_agent_file)
 
-    # Launch Playwright with stealth mode (undetected)
-    playwright = stealth_playwright.Playwright()
-    async with playwright.start() as p:
+    # Launch Playwright with stealth mode (undetected-playwright)
+    async with undetected_playwright.async_playwright() as p:  # Corrected undetected-playwright usage
         browser = await p.chromium.launch(headless=False)
         context = await browser.new_context(
             user_agent=user_agent, viewport={"width": 1280, "height": 720}
